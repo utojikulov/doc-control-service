@@ -6,6 +6,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../redis/redis.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
     imports: [
@@ -24,7 +25,8 @@ import { RedisModule } from '../redis/redis.module';
             })
         }),
         PrismaModule,
-        RedisModule
+        RedisModule,
+        UserModule
     ],
     providers: [
         AuthService,

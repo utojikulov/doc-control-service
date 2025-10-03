@@ -14,13 +14,27 @@ model User {
     updatedAt DateTime @updatedAt @map("updated_at")
 
     email    String  @unique
-    username String?
     password String
+    version Int @default(0)
+
+    document Document[]
 
     @@map("user")
 }
 
-// model Documents {
-//
-// }
+model Document {
+    id String @id @default(cuid())
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    title String
+    fileUrl String
+
+    userId String @map("user_id")
+    user User @relation(fields: [userId], references: [id])
+
+    version Int @default(0)
+
+    @@map("document")
+}
 
