@@ -1,8 +1,10 @@
-import { ConfigService } from "@nestjs/config"
-import { PassportStrategy } from "@nestjs/passport"
-import { Strategy, ExtractJwt } from "passport-jwt"
-import { UserService } from "src/modules/user/user.service"
+import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
+import { PassportStrategy } from '@nestjs/passport'
+import { Strategy, ExtractJwt } from 'passport-jwt'
+import { UserService } from 'src/modules/user/user.service'
 
+@Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         private readonly config: ConfigService,
@@ -15,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate({ id }: { id: string }) {
-        return this.userService.findOne(id)
+    async validate({ sub }: { sub: string }) {
+        return this.userService.findOne(sub)
     }
 }
