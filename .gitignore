@@ -2,6 +2,7 @@
 /data
 /redisdata
 /prisma/generated/
+/prisma/migrations/
 /dist
 /node_modules
 /build
