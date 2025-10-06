@@ -1,75 +1,79 @@
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres
+    postgres:
+        image: postgres:latest
+        container_name: postgres
 
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+        ports:
+            - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
-    volumes:
-      - ./data:/data/postgres_data
+        volumes:
+            - ./data:/data/postgres_data
 
-    healthcheck:
-      test: pg_isready -U ${POSTGRES_USER}
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    restart: unless-stopped
+        healthcheck:
+            test: pg_isready -U ${POSTGRES_USER}
+            interval: 10s
+            timeout: 5s
+            retries: 3
+        restart: unless-stopped
 
-    networks:
-        - doc-service
+        networks:
+            - doc-service
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - ${REDIS_PORT}:${REDIS_PORT}
-    volumes:
-      - ./redisdata:/data/redis_data
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 256M 
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: unless-stopped
-    tty: true
-    stdin_open: true
-    networks:
-      - doc-service
+    redis:
+        image: redis:latest
+        container_name: redis
+        ports:
+            - ${REDIS_PORT}:${REDIS_PORT}
+        volumes:
+            - ./redisdata:/data/redis_data
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'
+                    memory: 256M
+                reservations:
+                    cpus: '0.25'
+                    memory: 128M
+        healthcheck:
+            test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        restart: unless-stopped
+        tty: true
+        stdin_open: true
+        networks:
+            - doc-service
 
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: app_tounrament
-  #
-  #   ports:
-  #     - ${PORT}:${PORT}
-  #   env_file:
-  #     - ./.env
-  #
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #
-  #   networks:
-  #     - doc-service
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: app
+
+        ports:
+            - ${PORT}:${PORT}
+        env_file:
+            - ./.env
+
+        depends_on:
+            redis:
+                condition: service_healthy
+            postgres:
+                condition: service_healthy
+
+        restart: unless-stopped
+
+        networks:
+            - doc-service
 
 volumes:
-  data:
+    data:
 
 networks:
-  doc-service:
-    driver: bridge
+    doc-service:
+        driver: bridge
