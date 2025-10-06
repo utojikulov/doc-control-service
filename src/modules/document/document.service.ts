@@ -13,6 +13,7 @@ import { DocumentResponseDto } from './dto/document-response.dto'
 import { plainToInstance } from 'class-transformer'
 import { QueryDocumentDto } from './dto/query-document.dto'
 import { UpdateDocumentDto } from './dto/update-document.dto'
+import { DocumentGateway } from '../gateway/document.gateway'
 
 @Injectable()
 export class DocumentService {
@@ -23,7 +24,8 @@ export class DocumentService {
 	constructor(
 		private prisma: PrismaService,
 		private dmsService: DmsService,
-		private redis: RedisService
+		private redis: RedisService,
+		private documentGateway: DocumentGateway
 	) {}
 
 	async createDocument(
@@ -65,13 +67,16 @@ export class DocumentService {
 				}
 			)
 
-			this.logger.log(
-				`DOcument created: ${document.id} by user: ${userId}`
-			)
-
-			return plainToInstance(DocumentResponseDto, document, {
+			const result = plainToInstance(DocumentResponseDto, document, {
 				excludeExtraneousValues: true
 			})
+
+			this.documentGateway.notifyDocumentCreated(userId, result)
+
+			this.logger.log(
+				`Document created: ${document.id} by user: ${userId}`
+			)
+			return result
 		} catch (error) {
 			try {
 				await this.dmsService.deleteFile(s3Key!)
@@ -125,7 +130,17 @@ export class DocumentService {
 						}
 					})
 
-					return updatedDocument
+					const result = plainToInstance(
+						DocumentResponseDto,
+						updatedDocument,
+						{
+							excludeExtraneousValues: true
+						}
+					)
+
+					this.documentGateway.notifyDocumentUpdated(userId, result)
+
+					return result
 				},
 				{
 					isolationLevel: 'Serializable',
@@ -293,6 +308,8 @@ export class DocumentService {
 					`S3 deletion faild fro ${docToDel.s3Key}: ${s3.message}`
 				)
 			}
+
+			this.documentGateway.notifyDocumentDeleted(userId, id)
 
 			this.logger.log(`Document deleted: ${id} by user: ${userId}`)
 

@@ -33,7 +33,7 @@ export class DocumentController {
 		@UploadedFile(
 			new ParseFilePipe({
 				validators: [
-					new FileTypeValidator({ fileType: '.(png|jpeg|jpg"pdf)' }),
+					new FileTypeValidator({ fileType: '.(png|jpeg|jpg|pdf)' }),
 					new MaxFileSizeValidator({
 						maxSize: 20 * 1024 * 1024,
 						message: 'File is too large'
