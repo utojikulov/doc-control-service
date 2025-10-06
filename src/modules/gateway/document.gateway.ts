@@ -15,7 +15,7 @@ interface AuthenticatedSocket extends Socket {
 @WebSocketGateway({
 	cors: {
 		origin: '*',
-		mehods: ['GET', 'POST'],
+		methods: ['GET', 'POST'],
 		credentials: true
 	},
 	namespace: '/documents'
@@ -63,7 +63,6 @@ export class DocumentGateway
 			}
 
 			client.userId = payload.sub
-
 			await client.join(`user_${payload.sub}`)
 
 			this.logger.log(
@@ -91,31 +90,40 @@ export class DocumentGateway
 	}
 
 	notifyDocumentCreated(userId: string, document: any) {
-		this.server.to(`user_${userId}`).emit('documentCreated', {
-			type: 'DOCUMENT_CREATED',
-			data: document,
-			timestamp: new Date().toISOString()
-		})
+		this.server.to(`user_${userId}`).emit(
+			'documentCreated',
+			JSON.stringify({
+				type: 'DOCUMENT_CREATED',
+				data: document,
+				timestamp: new Date().toISOString()
+			})
+		)
 
 		this.logger.log(`Sent documentCreated notification to user: ${userId}`)
 	}
 
 	notifyDocumentUpdated(userId: string, document: any) {
-		this.server.to(`user_${userId}`).emit('documentUpdated', {
-			type: 'DOCUMENT_UPDATED',
-			data: document,
-			timestamp: new Date().toISOString()
-		})
+		this.server.to(`user_${userId}`).emit(
+			'documentUpdated',
+			JSON.stringify({
+				type: 'DOCUMENT_UPDATED',
+				data: document,
+				timestamp: new Date().toISOString()
+			})
+		)
 
 		this.logger.log(`Sent documentUpdated notification to user: ${userId}`)
 	}
 
 	notifyDocumentDeleted(userId: string, documentId: string) {
-		this.server.to(`user_${userId}`).emit('documentDeleted', {
-			type: 'DOCUMENT_DELETED',
-			data: { id: documentId },
-			timestamp: new Date().toISOString()
-		})
+		this.server.to(`user_${userId}`).emit(
+			'documentDeleted',
+			JSON.stringify({
+				type: 'DOCUMENT_DELETED',
+				data: { id: documentId },
+				timestamp: new Date().toISOString()
+			})
+		)
 
 		this.logger.log(`Sent documentDeleted notification to user: ${userId}`)
 	}
