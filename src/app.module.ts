@@ -6,7 +6,8 @@ import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import config from './modules/config/config'
 import { DmsModule } from './modules/dms/dms.module'
-import { DocumentModule } from './modules/document/document.module';
+import { DocumentModule } from './modules/document/document.module'
+import { WebSocketModule } from './modules/gateway/gateway.module'
 
 @Module({
 	imports: [
@@ -20,7 +21,8 @@ import { DocumentModule } from './modules/document/document.module';
 		AuthModule,
 		UserModule,
 		DmsModule,
-		DocumentModule
+		DocumentModule,
+		WebSocketModule
 	]
 })
 export class AppModule {}
