@@ -5,6 +5,8 @@ import { RedisModule } from './modules/redis/redis.module'
 import { AuthModule } from './modules/auth/auth.module'
 import { UserModule } from './modules/user/user.module'
 import config from './modules/config/config'
+import { DmsModule } from './modules/dms/dms.module'
+import { DocumentModule } from './modules/document/document.module';
 
 @Module({
 	imports: [
@@ -16,7 +18,9 @@ import config from './modules/config/config'
 		PrismaModule,
 		RedisModule,
 		AuthModule,
-		UserModule
+		UserModule,
+		DmsModule,
+		DocumentModule
 	]
 })
 export class AppModule {}
