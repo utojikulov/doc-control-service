@@ -35,8 +35,7 @@ export class DmsService {
 		})
 	}
 	async uploadFile(
-		file: Express.Multer.File,
-		userId?: string
+		file: Express.Multer.File
 	): Promise<{ key: string; url: string }> {
 		try {
 			const key = `${uuidv4()}`

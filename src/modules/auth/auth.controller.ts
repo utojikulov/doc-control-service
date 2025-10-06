@@ -1,81 +1,99 @@
 import {
-    Body,
-    Controller,
-    Post,
-    Req,
-    Res,
-    UnauthorizedException,
-    UsePipes,
-    ValidationPipe
+	Body,
+	Controller,
+	Get,
+	Post,
+	Req,
+	Res,
+	UnauthorizedException,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { Request, Response } from 'express'
+import { Auth } from 'src/common/decorators/auth.decorator'
+import { CurrentUser } from 'src/common/decorators/user.decorator'
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+	constructor(private readonly authService: AuthService) {}
 
-    @UsePipes(new ValidationPipe())
-    @Post('login')
-    async login(
-        @Body() dto: LoginDto,
-        @Res({ passthrough: true }) res: Response
-    ) {
-        const { refreshToken, ...response } = await this.authService.login(dto)
-        this.authService.addRefreshTokenToResponse(res, refreshToken)
+	@Get('verify')
+	@Auth()
+	async verifyToken(@CurrentUser() user: any) {
+		return {
+			valid: true,
+			user: {
+				id: user.id,
+				email: user.email,
+				createdAt: user.createdAt,
+				updatedAt: user.updatedAt
+			}
+		}
+	}
 
-        return response
-    }
+	@UsePipes(new ValidationPipe())
+	@Post('login')
+	async login(
+		@Body() dto: LoginDto,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const { refreshToken, ...response } = await this.authService.login(dto)
+		this.authService.addRefreshTokenToResponse(res, refreshToken)
 
-    @UsePipes(new ValidationPipe())
-    @Post('register')
-    async register(
-        @Body() dto: LoginDto,
-        @Res({ passthrough: true }) res: Response
-    ) {
-        const { refreshToken, ...response } = await this.authService.register(dto)
-        this.authService.addRefreshTokenToResponse(res, refreshToken)
+		return response
+	}
 
-        return response
-    }
+	@UsePipes(new ValidationPipe())
+	@Post('register')
+	async register(
+		@Body() dto: LoginDto,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const { refreshToken, ...response } =
+			await this.authService.register(dto)
+		this.authService.addRefreshTokenToResponse(res, refreshToken)
 
-    @Post('logout')
-    async logout(
-        @Req() req: Request,
-        @Res({ passthrough: true }) res: Response
-    ) {
-        const refreshTokenFromCookies =
-            req.cookies[this.authService.REFRESH_TOKEN_NAME]
+		return response
+	}
 
-        this.authService.removeRefreshTokenFromResponse(res)
+	@Post('logout')
+	async logout(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const refreshTokenFromCookies =
+			req.cookies[this.authService.REFRESH_TOKEN_NAME]
 
-        if (refreshTokenFromCookies) {
-            return await this.authService.logout(refreshTokenFromCookies)
-        }
+		this.authService.removeRefreshTokenFromResponse(res)
 
-        return { message: 'Logged out successfully' }
-    }
+		if (refreshTokenFromCookies) {
+			return await this.authService.logout(refreshTokenFromCookies)
+		}
 
-    @Post('login/access-token')
-    async getNewTokens(
-        @Req() req: Request,
-        @Res({ passthrough: true }) res: Response
-    ) {
-        const refreshTokenFromCookies =
-            req.cookies[this.authService.REFRESH_TOKEN_NAME]
+		return { message: 'Logged out successfully' }
+	}
 
-        if (!refreshTokenFromCookies) {
-            this.authService.removeRefreshTokenFromResponse(res)
-            throw new UnauthorizedException('Refresh token not passed.')
-        }
+	@Post('login/access-token')
+	async getNewTokens(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response
+	) {
+		const refreshTokenFromCookies =
+			req.cookies[this.authService.REFRESH_TOKEN_NAME]
 
-        const response = await this.authService.getNewToken(
-            refreshTokenFromCookies
-        )
+		if (!refreshTokenFromCookies) {
+			this.authService.removeRefreshTokenFromResponse(res)
+			throw new UnauthorizedException('Refresh token not passed.')
+		}
 
-        this.authService.addRefreshTokenToResponse(res, response.refreshToken)
+		const response = await this.authService.getNewToken(
+			refreshTokenFromCookies
+		)
 
-        return response
-    }
+		this.authService.addRefreshTokenToResponse(res, response.refreshToken)
+
+		return response
+	}
 }
