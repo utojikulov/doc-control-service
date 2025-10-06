@@ -28,7 +28,11 @@ model Document {
     updatedAt DateTime @updatedAt @map("updated_at")
 
     title String
-    fileUrl String
+    fileName String @map("file_name")
+    fileSize Int @map("file_size")
+    mimeType String @map("mime_type")
+    s3Key String @map("s3_key")
+    fileUrl String @map("file_url")
 
     userId String @map("user_id")
     user User @relation(fields: [userId], references: [id])
@@ -37,4 +41,3 @@ model Document {
 
     @@map("document")
 }
-
