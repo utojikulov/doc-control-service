@@ -3,7 +3,7 @@
 NestJS-based document management service with JWT authentication, file storage (S3), and real-time WebSocket notifications.
 
 ### SETTING UP IS DONE ONLY WITH DOCKER
-### Using Docker (Recommended)
+### USING DOCKER !!!
 ```bash
 # Clone and setup
 git clone <repo-url>
@@ -16,7 +16,7 @@ cp .env.example .env
 nano .env
 
 # Start all services
-docker-compose up --build 
+docker-compose up --build
 
 # Check if running
 docker-compose ps
@@ -62,10 +62,10 @@ docker-compose ps
 
 ```env
 # Database
-DATABASE_URL=postgresql://postgres:postgres123@localhost:5432/doc_control
+DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/doc_control
 
 # Redis
-REDIS_HOST=localhost
+REDIS_HOST=redis
 REDIS_PORT=6379
 REDIS_PASSWORD=redis123
 
